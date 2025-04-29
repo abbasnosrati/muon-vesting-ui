@@ -21,12 +21,14 @@
     "react": "^18.3.1",
     "numeral": "^2.0.6",
     "react-dom": "^18.3.1",
+    "papaparse": "^5.5.2",
     "typechain": "^8.2.0",
     "viem": "2.x",
     "graphql-tag": "^2.12.6",
     "wagmi": "^2.12.25"
   },
   "devDependencies": {
+    "@types/papaparse": "^5.3.15",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^7.13.1",
