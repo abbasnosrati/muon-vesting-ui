@@ -1,0 +1,30 @@
+// export const PION_ADDRESS = "0x39f2914690547694c8668ae07061179bd70A66f4";
+// export const BONPION_ADDRESS = "0x8A916bEa7441d2297DE1d7e5F5404FBf8Abc0355";
+// export const DELEGATION_ADDRESS = "0xc644dE58719d0E7E52C3F851a6e5f47d471605fa";
+// export const NODE_STAKER_ADDRESS = "0xeb1AD80D6d93D8B7b691b306c4b48453EBAB542D";
+// export const DELEGATOR_NODE_STAKER =
+//   "0xAa1EA50d282753b114D3bAFdc74d9F3191a7580e";
+
+//mainnet
+// export const PION_ADDRESS = "0xb8067235c9b71FeeC069Af151Fdf0975dfBDFBA5";
+// export const BONPION_ADDRESS = "0xbBcB37DAB4602026e67f2c46714C3197F3ba39c4";
+// export const DELEGATION_ADDRESS = "0x9f9E2f5a562ac6fB579DeF0F1cC783CD1e0023C4";
+// export const DELEGATOR_NODE_STAKER =
+//   "0x7Da0355397aA56ec7121d8dADCcc04550217a188"; this is wallet
+// export const NODE_STAKER_ADDRESS = "0xCf5093AACC4Aa9fff703C365727309aDb5e81A0d";
+
+import { SupportedChainId } from "../web3/chains";
+
+export type AddressMap = { [chainId: number]: `0x${string}` };
+export let MUON_TOKEN_ADDRESS: AddressMap;
+export let VESTING_ADDRESS: AddressMap;
+
+MUON_TOKEN_ADDRESS = {
+  [SupportedChainId.AVALANCHFUJI]: "0x383FA34836A5F5D3805e77df4f60A62D75034579",
+  [SupportedChainId.AVALANCH]: "0x6B1eCf0c181Afff3d7096B26C3d2bc31F55CEaB9",
+};
+
+VESTING_ADDRESS = {
+  [SupportedChainId.AVALANCHFUJI]: "0xx",
+  [SupportedChainId.AVALANCH]: "0xxx",
+};
