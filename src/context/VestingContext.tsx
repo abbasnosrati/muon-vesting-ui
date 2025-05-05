@@ -176,7 +176,6 @@ const VestingProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (!userInfo) return;
-
     setUserVestingInfo({
       ...userVestingInfo,
       releasableAmount:
@@ -198,7 +197,6 @@ const VestingProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (!contractVestingInfo) return;
-
     setVestingInfo({
       ...vestingInfo,
       startDate:

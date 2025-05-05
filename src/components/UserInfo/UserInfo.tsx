@@ -1,3 +1,4 @@
+import { useAccount } from "wagmi";
 import { useVestingContext } from "../../context/VestingContext";
 
 import { ConnectWalletModal } from "../common/ConnectWalletModal";
@@ -10,14 +11,19 @@ const UserInfo = () => {
     isMetamaskLoading,
   } = useVestingContext();
 
+  const { address: walletAddress } = useAccount();
+
   return (
     <div className="flex items-center relative justify-center w-full max-w-[430px]">
       <ConnectWalletModal />
-      <div className="w-full bg-sectionBg  2xl:min-h-[510px]">
+      <div className="w-full bg-sectionBg relative 2xl:min-h-[510px]">
+        {!walletAddress && (
+          <div className="absolute top-0 left-0 right-0 bottom-0 bg-slate-500 z-20 opacity-80"></div>
+        )}
         <div className="flex items-center px-10 font-medium font-azeretMono absolute h-[56px] -top-8 bg-textBackGround text-lightDarkText tracking-[1px]">
           Tools
         </div>
-        <div className="muon actions-content mt-3  w-full px-4 py-8 min-h-[400px] md:min-h-[428px] md:max-h-[424px] overflow-hidden flex flex-col">
+        <div className="muon actions-content mt-3 w-full px-4 py-8 min-h-[400px] md:min-h-[428px] md:max-h-[424px] overflow-hidden flex flex-col">
           <div className="mt-5 text-[12px] leading-5 text-base ">
             <div className="border-t py-5 flex justify-between gap-5">
               <span className="border-b pb-5 w-full text-nowrap">
