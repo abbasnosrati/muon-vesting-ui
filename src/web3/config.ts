@@ -1,7 +1,7 @@
 import "@rainbow-me/rainbowkit/styles.css";
 import { getDefaultConfig } from "@rainbow-me/rainbowkit";
 import { http } from "viem";
-import { avalancheFuji, avalanche, bsc } from "wagmi/chains";
+import { avalancheFuji, avalanche } from "wagmi/chains";
 import {
   rabbyWallet,
   walletConnectWallet,
