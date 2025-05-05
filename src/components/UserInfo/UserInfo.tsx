@@ -59,7 +59,10 @@ const UserInfo = () => {
       </div>
       <div className="w-full absolute bottom-10 flex justify-center ">
         {isTransactionLoading || isMetamaskLoading ? (
-          <button disabled={true} className="btn  btn--small   max-w-[250px]">
+          <button
+            disabled={true}
+            className="btn  btn--small   max-w-[250px] text-nowrap"
+          >
             {isMetamaskLoading ? "waiting for confirm..." : "waiting for Tx..."}
           </button>
         ) : (
@@ -70,10 +73,10 @@ const UserInfo = () => {
               isTransactionLoading ||
               isMetamaskLoading
             }
-            className="btn  btn--small   max-w-[250px]"
+            className="btn  btn--small   max-w-[250px] text-nowrap"
             onClick={() => handleClaim()}
           >
-            Claim {userVestingInfo?.releasableAmount?.hStr ?? 0} $MUON
+            Claim {userVestingInfo?.releasableAmount?.hStr ?? 0} $MUON Claim{" "}
           </button>
         )}
       </div>
