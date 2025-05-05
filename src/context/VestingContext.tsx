@@ -229,21 +229,25 @@ const VestingProvider = ({ children }: { children: ReactNode }) => {
   });
 
   const handleClaim = async () => {
-    const claimableAmount = await readContract(config, {
-      abi: VestingAbi,
-      address: VESTING_ADDRESS as Address,
-      functionName: "releasable",
-      args: [walletAddress as Address],
-    });
-    if (!claimableAmount) return;
-    await releaseClaimableAmount?.({
-      args: [claimableAmount],
-      pending: "Transaction is being sent...",
-      success: "Transaction was successful!",
-      failed: "Transaction failed.",
-    });
-
-    refetchUserVestingInfo();
+    try {
+      const claimableAmount = await readContract(config, {
+        abi: VestingAbi,
+        address: VESTING_ADDRESS as Address,
+        functionName: "releasable",
+        args: [walletAddress as Address],
+      });
+      if (!claimableAmount) return;
+      await releaseClaimableAmount?.({
+        args: [claimableAmount],
+        pending: "Transaction is being sent...",
+        success: "Transaction was successful!",
+        failed: "Transaction failed.",
+      });
+    } catch (err: any) {
+      console.log(err);
+    } finally {
+      await refetchUserVestingInfo();
+    }
   };
 
   return (
