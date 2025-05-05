@@ -1,6 +1,8 @@
+import { useVestingContext } from "../../context/VestingContext";
 import { ConnectWalletModal } from "../common/ConnectWalletModal";
 
 const VestingInfo = () => {
+  const { vestingInfo } = useVestingContext();
   return (
     <div className="flex items-center justify-center w-full max-w-[430px] font-azeretMono">
       <ConnectWalletModal />
@@ -15,7 +17,9 @@ const VestingInfo = () => {
                 Vesting Start Date:
               </div>
               <div className="border-b w-full flex justify-center items-center max-w-[150px] pb-4">
-                <mark className="bg-textBackGround p-1">2025/04/30</mark>
+                <mark className="bg-textBackGround p-1">
+                  {vestingInfo?.startDate}
+                </mark>
               </div>
             </div>
 
@@ -24,14 +28,18 @@ const VestingInfo = () => {
                 Vesting End Date:
               </div>
               <div className="border-b w-full flex justify-center max-w-[150px] py-5">
-                <mark className="bg-textBackGround p-1">2025/04/30</mark>
+                <mark className="bg-textBackGround p-1">
+                  {vestingInfo?.endDate}
+                </mark>
               </div>
             </div>
 
             <div className="w-full flex items-center justify-between">
               <div className="w-full max-w-[200px] pt-6">Duration:</div>
               <div className=" w-full flex justify-center max-w-[150px] pt-5">
-                <mark className="bg-textBackGround p-1">11 Months</mark>
+                <mark className="bg-textBackGround p-1">
+                  {vestingInfo?.duration}
+                </mark>
               </div>
             </div>
           </div>

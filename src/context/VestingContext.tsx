@@ -6,69 +6,84 @@ import {
   useState,
 } from "react";
 import { W3bNumber } from "../types/wagmi.ts";
-import { useAccount, useBalance } from "wagmi";
+import { useAccount, useBalance, useReadContracts } from "wagmi";
 import { VESTING_ADDRESS, MUON_TOKEN_ADDRESS } from "../constants/addresses.ts";
 import { getCurrentChainId } from "../web3/chains.ts";
 import { w3bNumberFromBigint, w3bNumberFromString } from "../utils/web3.ts";
-import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
+// import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
+// import { config } from "../web3/config.ts";
+// import MIGRATION_ABI from "../abis/Migration.ts";
+// import useAllowance from "../hooks/useAllowance.ts";
+// import PION_ABI from "../abis/Token.ts";
+// import toast from "react-hot-toast";
+import VestingAbi from "../abis/VestingAbi.ts";
+import { Address } from "viem";
+import { readContract } from "wagmi/actions";
 import { config } from "../web3/config.ts";
-import MIGRATION_ABI from "../abis/Migration.ts";
-import useAllowance from "../hooks/useAllowance.ts";
-import PION_ABI from "../abis/Token.ts";
-import toast from "react-hot-toast";
-import useGetUserBurntAmount from "../hooks/useGetUserBurntAmount.ts";
+import { useWagmiContractWrite } from "../hooks/useWagmiContractWrite.ts";
+
+interface UserVestingInfoProp {
+  releasableAmount: W3bNumber | null;
+  totalVestedAmount: W3bNumber | null;
+  releasedAmount: W3bNumber | null;
+}
+
+interface VestingInfoProp {
+  startDate: string | null;
+  endDate: string | null;
+  duration: string | null;
+}
+
+const vestingInfoInit: VestingInfoProp = {
+  startDate: null,
+  endDate: null,
+  duration: null,
+};
+
+const userVestingInfoInit: UserVestingInfoProp = {
+  releasableAmount: null,
+  totalVestedAmount: null,
+  releasedAmount: null,
+};
 
 const VestingContext = createContext<{
   muonBalance: W3bNumber | null;
   refetchMuonBalance: () => void;
   isMetamaskLoading: boolean;
-  handleConvert: () => void;
-  migrateAmount: W3bNumber;
-  setMigrateAmount: (amount: W3bNumber) => void;
-  handleApprove: () => void;
-  migrateAllowance: W3bNumber | null;
-  isApproveModalOpen: boolean;
-  setIsApproveModalOpen: (isOpen: boolean) => void;
+  isTransactionLoading: boolean;
+
   isConnectWalletModalOpen: boolean;
   setIsConnectWalletModalOpen: (isOpen: boolean) => void;
-  userBurntAmount: W3bNumber | null;
+  userVestingInfo: UserVestingInfoProp | null;
+  vestingInfo: VestingInfoProp | null;
+  handleClaim: () => void;
 }>({
   muonBalance: null,
   refetchMuonBalance: () => {},
   isMetamaskLoading: false,
-  handleConvert: () => {},
-  migrateAmount: w3bNumberFromString(""),
-  setMigrateAmount: () => {},
-  handleApprove: () => {},
-  migrateAllowance: null,
-  isApproveModalOpen: false,
-  setIsApproveModalOpen: () => {},
+  isTransactionLoading: false,
   isConnectWalletModalOpen: false,
   setIsConnectWalletModalOpen: () => {},
-  userBurntAmount: null,
+  userVestingInfo: userVestingInfoInit,
+  vestingInfo: vestingInfoInit,
+  handleClaim: () => {},
 });
 
 const VestingProvider = ({ children }: { children: ReactNode }) => {
   const { address: walletAddress } = useAccount();
   const [muonBalance, setMuonBalance] = useState<W3bNumber | null>(null);
-  const [isMetamaskLoading, setIsMetamaskLoading] = useState(false);
-  const [migrateAmount, setMigrateAmount] = useState(w3bNumberFromString(""));
-  const [isApproveModalOpen, setIsApproveModalOpen] = useState<boolean>(false);
   const [isConnectWalletModalOpen, setIsConnectWalletModalOpen] =
     useState<boolean>(!walletAddress);
+
+  const [userVestingInfo, setUserVestingInfo] =
+    useState<UserVestingInfoProp>(userVestingInfoInit);
+
+  const [vestingInfo, setVestingInfo] =
+    useState<VestingInfoProp>(vestingInfoInit);
 
   useEffect(() => {
     setIsConnectWalletModalOpen(!walletAddress);
   }, [walletAddress]);
-
-  const { allowance: migrateAllowance, refetch: refetchMigrateAllowance } =
-    useAllowance(
-      MUON_TOKEN_ADDRESS[getCurrentChainId()],
-      VESTING_ADDRESS[getCurrentChainId()]
-    );
-
-  const { userBurntAmount, refetch: refetchUserBurntAmount } =
-    useGetUserBurntAmount();
 
   const {
     data: muonBalanceData,
@@ -88,60 +103,147 @@ const VestingProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [muonBalanceIsFetched, muonBalanceData]);
 
-  const handleConvert = async () => {
-    try {
-      setIsMetamaskLoading(true);
-      const result = await writeContract(config, {
-        address: VESTING_ADDRESS[getCurrentChainId()],
-        abi: MIGRATION_ABI,
-        functionName: "migrate",
-        args: [migrateAmount.big],
-        chainId: getCurrentChainId() as any,
-      });
+  const formatDate = (timeStamp: bigint) => {
+    const date = new Date(Number(timeStamp) * 1000);
+    const parts = new Intl.DateTimeFormat("en-US", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    }).formatToParts(date);
 
-      const ts = waitForTransactionReceipt(config, {
-        hash: result,
-      });
+    const day = parts.find((p) => p.type === "day")?.value;
+    const month = parts.find((p) => p.type === "month")?.value;
+    const year = parts.find((p) => p.type === "year")?.value;
 
-      await toast.promise(ts, {
-        loading: "Burning...",
-        success: "Burned!",
-        error: "Failed to Burn.",
-      });
-    } finally {
-      setIsMetamaskLoading(false);
-      refetchMuonBalance();
-      refetchMigrateAllowance();
-      refetchUserBurntAmount();
-      setMigrateAmount(w3bNumberFromString(""));
-    }
+    return `${day + " " + month + " " + year}`;
   };
 
-  const handleApprove = async () => {
-    try {
-      setIsApproveModalOpen(true);
-      setIsMetamaskLoading(true);
-      const result = await writeContract(config, {
-        address: MUON_TOKEN_ADDRESS[getCurrentChainId()],
-        abi: PION_ABI,
-        functionName: "approve",
-        args: [VESTING_ADDRESS[getCurrentChainId()], migrateAmount!.big],
-      });
-      const ts = waitForTransactionReceipt(config, {
-        hash: result,
-      });
+  const formatDuration = (duration: bigint) => {
+    const seconds = Number(duration);
 
-      await toast.promise(ts, {
-        loading: "Approving...",
-        success: "Approved!",
-        error: "Failed to Approve.",
-      });
+    const years = Math.floor(seconds / 31104000);
+    const months = Math.floor((seconds % 31104000) / 2592000);
+    const weeks = Math.floor((seconds % 2592000) / 604800);
+    // const days = Math.floor((seconds % 604800) / 86400);
 
-      refetchMigrateAllowance();
-    } finally {
-      setIsApproveModalOpen(false);
-      setIsMetamaskLoading(false);
-    }
+    let result = "";
+    if (years > 0) result += `${years} year${years > 1 ? "s" : ""} `;
+    if (months > 0) result += `${months} month${months > 1 ? "s" : ""} `;
+    if (weeks > 0) result += `${weeks} week${weeks > 1 ? "s" : ""} `;
+    // if (days > 0) result += `${days} day${days > 1 ? "s" : ""}`;
+
+    return result.trim();
+  };
+
+  const { data: userInfo, refetch: refetchUserVestingInfo } = useReadContracts({
+    contracts: walletAddress
+      ? [
+          {
+            abi: VestingAbi,
+            address: VESTING_ADDRESS[getCurrentChainId()],
+            functionName: "releasable",
+            args: [walletAddress as Address],
+          },
+          {
+            abi: VestingAbi,
+            address: VESTING_ADDRESS[getCurrentChainId()],
+            functionName: "users",
+            args: [walletAddress as Address],
+          },
+        ]
+      : [],
+  });
+
+  const { data: contractVestingInfo } = useReadContracts({
+    contracts: [
+      {
+        abi: VestingAbi,
+        address: VESTING_ADDRESS[getCurrentChainId()],
+        functionName: "start",
+      },
+      {
+        abi: VestingAbi,
+        address: VESTING_ADDRESS[getCurrentChainId()],
+        functionName: "end",
+      },
+      {
+        abi: VestingAbi,
+        address: VESTING_ADDRESS[getCurrentChainId()],
+        functionName: "duration",
+      },
+    ],
+  });
+
+  useEffect(() => {
+    if (!userInfo) return;
+
+    setUserVestingInfo({
+      ...userVestingInfo,
+      releasableAmount:
+        userInfo[0] && userInfo[0].result
+          ? w3bNumberFromBigint(userInfo[0].result)
+          : w3bNumberFromString("0"),
+
+      totalVestedAmount:
+        userInfo[1] && userInfo[1].result
+          ? w3bNumberFromBigint(userInfo[1].result[0])
+          : w3bNumberFromString("0"),
+
+      releasedAmount:
+        userInfo[1] && userInfo[1].result
+          ? w3bNumberFromBigint(userInfo[1].result[1])
+          : w3bNumberFromString("0"),
+    });
+  }, [userInfo]);
+
+  useEffect(() => {
+    if (!contractVestingInfo) return;
+
+    setVestingInfo({
+      ...vestingInfo,
+      startDate:
+        contractVestingInfo[0] && contractVestingInfo[0].result
+          ? formatDate(contractVestingInfo[0].result)
+          : null,
+      endDate:
+        contractVestingInfo[1] && contractVestingInfo[1].result
+          ? formatDate(contractVestingInfo[1].result)
+          : null,
+      duration:
+        contractVestingInfo[2] && contractVestingInfo[2].result
+          ? formatDuration(contractVestingInfo[2].result)
+          : null,
+    });
+  }, [contractVestingInfo]);
+
+  const {
+    callback: releaseClaimableAmount,
+    isMetamaskLoading,
+    isTransactionLoading,
+  } = useWagmiContractWrite({
+    abi: VestingAbi,
+    address: VESTING_ADDRESS as Address,
+    functionName: "release",
+    chainId: getCurrentChainId(),
+    showErrorToast: true,
+  });
+
+  const handleClaim = async () => {
+    const claimableAmount = await readContract(config, {
+      abi: VestingAbi,
+      address: VESTING_ADDRESS as Address,
+      functionName: "releasable",
+      args: [walletAddress as Address],
+    });
+    if (!claimableAmount) return;
+    await releaseClaimableAmount?.({
+      args: [claimableAmount],
+      pending: "Transaction is being sent...",
+      success: "Transaction was successful!",
+      failed: "Transaction failed.",
+    });
+
+    refetchUserVestingInfo();
   };
 
   return (
@@ -150,16 +252,12 @@ const VestingProvider = ({ children }: { children: ReactNode }) => {
         muonBalance,
         refetchMuonBalance,
         isMetamaskLoading,
-        handleConvert,
-        migrateAmount,
-        setMigrateAmount,
-        handleApprove,
-        migrateAllowance,
-        isApproveModalOpen,
-        setIsApproveModalOpen,
+        isTransactionLoading,
         isConnectWalletModalOpen,
         setIsConnectWalletModalOpen,
-        userBurntAmount,
+        userVestingInfo,
+        vestingInfo,
+        handleClaim,
       }}
     >
       {children}

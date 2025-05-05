@@ -25,6 +25,6 @@ MUON_TOKEN_ADDRESS = {
 };
 
 VESTING_ADDRESS = {
-  [SupportedChainId.AVALANCHFUJI]: "0xx",
+  [SupportedChainId.AVALANCHFUJI]: "0x32D814b5BC41348Bdf15224F87378A622373c426",
   [SupportedChainId.AVALANCH]: "0xxx",
 };

@@ -1,8 +1,15 @@
-import useVestedMuon from "../../hooks/useVesting";
+import { useVestingContext } from "../../context/VestingContext";
+
 import { ConnectWalletModal } from "../common/ConnectWalletModal";
 
 const UserInfo = () => {
-  const { vestedAmount } = useVestedMuon();
+  const {
+    userVestingInfo,
+    handleClaim,
+    isTransactionLoading,
+    isMetamaskLoading,
+  } = useVestingContext();
+
   return (
     <div className="flex items-center relative justify-center w-full max-w-[430px]">
       <ConnectWalletModal />
@@ -10,22 +17,59 @@ const UserInfo = () => {
         <div className="flex items-center px-10 font-medium font-azeretMono absolute h-[56px] -top-8 bg-textBackGround text-lightDarkText tracking-[1px]">
           Tools
         </div>
-        <div className="muon actions-content  w-full px-4 py-8 min-h-[400px] md:min-h-[428px] md:max-h-[424px] overflow-hidden flex flex-col">
+        <div className="muon actions-content mt-3  w-full px-4 py-8 min-h-[400px] md:min-h-[428px] md:max-h-[424px] overflow-hidden flex flex-col">
           <div className="mt-5 text-[12px] leading-5 text-base ">
-            <div>Total Vested $Muon: {vestedAmount?.hStr ?? 0}</div>
-            <div>Claimable Amount:</div>
-            <div>Total Claimed:</div>
-            <div>Duration:</div>
+            <div className="border-t py-5 flex justify-between gap-5">
+              <span className="border-b pb-5 w-full text-nowrap">
+                Total Vested $Muon:
+              </span>{" "}
+              <span className="border-b pb-5 w-full flex justify-center">
+                {" "}
+                <mark className="bg-textBackGround p-1">
+                  {userVestingInfo?.totalVestedAmount?.hStr ?? 0}
+                </mark>
+              </span>
+            </div>
+            <div className="flex justify-between gap-5">
+              <span className="border-b pb-5 w-full text-nowrap">
+                Claimable Amount:
+              </span>
+              <span className="border-b pb-5 w-full flex justify-center">
+                <mark className="bg-textBackGround p-1">
+                  {userVestingInfo?.releasableAmount?.dsp}
+                </mark>
+              </span>
+            </div>
+            <div className="flex justify-between border-b py-5">
+              <span className="w-full">Total Claimed:</span>
+              <span className="w-full justify-center flex">
+                <mark className="bg-textBackGround p-1">
+                  {userVestingInfo?.releasedAmount?.dsp}
+                </mark>
+              </span>
+            </div>
           </div>
         </div>
       </div>
       <div className="w-full absolute bottom-10 flex justify-center ">
-        <button
-          disabled={!vestedAmount || !vestedAmount.dsp}
-          className="btn  btn--small   max-w-[250px]"
-        >
-          Claim {vestedAmount?.hStr ?? 0} $MUON
-        </button>
+        {isTransactionLoading || isMetamaskLoading ? (
+          <button disabled={true} className="btn  btn--small   max-w-[250px]">
+            {isMetamaskLoading ? "waiting for confirm..." : "waiting for Tx..."}
+          </button>
+        ) : (
+          <button
+            disabled={
+              !userVestingInfo ||
+              !userVestingInfo.releasableAmount?.big ||
+              isTransactionLoading ||
+              isMetamaskLoading
+            }
+            className="btn  btn--small   max-w-[250px]"
+            onClick={() => handleClaim()}
+          >
+            Claim {userVestingInfo?.releasableAmount?.hStr ?? 0} $MUON
+          </button>
+        )}
       </div>
     </div>
   );

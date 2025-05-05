@@ -3,7 +3,7 @@ import VestingInfo from "../VestingInfo/VestingInfo";
 
 const Home = () => {
   return (
-    <div className=" w-full flex flex-col md:flex-row items-center justify-center gap-16 md:gap-10">
+    <div className=" w-full flex flex-col lg:flex-row items-center justify-center gap-16 lg:gap-10">
       <UserInfo />
       <VestingInfo />
     </div>
