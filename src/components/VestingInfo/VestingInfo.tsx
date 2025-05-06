@@ -4,11 +4,11 @@ import { ConnectWalletModal } from "../common/ConnectWalletModal";
 const VestingInfo = () => {
   const { vestingInfo } = useVestingContext();
   return (
-    <div className="flex items-center justify-center w-full max-w-[430px] font-azeretMono">
+    <div className="flex items-center justify-center w-full max-w-[430px] font-azeretMono text-nowrap">
       <ConnectWalletModal />
       <div className="w-full  bg-sectionBg relative 2xl:min-h-[510px]">
-        <div className="flex items-center px-10 font-medium font-azeretMono absolute h-[56px] -top-8 bg-textBackGround text-lightDarkText tracking-[1px]">
-          Stats
+        <div className="flex items-center px-10 text-[18px] font-medium font-azeretMono absolute h-[56px] -top-8 bg-textBackGround text-lightDarkText tracking-[1px]">
+          Vesting Schedule
         </div>
         <div className="muon actions-content  w-full px-4 mt-4 py-8 min-h-[400px] md:min-h-[428px] md:max-h-[424px] overflow-hidden flex flex-col">
           <div className=" border-t  m-4 py-6">

@@ -20,10 +20,10 @@ const UserInfo = () => {
       <ConnectWalletModal />
       <div className="w-full bg-sectionBg relative 2xl:min-h-[510px]">
         {!walletAddress && (
-          <div className="absolute top-0 left-0 right-0 bottom-0 bg-slate-500 z-20 opacity-80"></div>
+          <div className="absolute top-0 left-0 right-0 bottom-0 bg-lightDarkText z-20 opacity-70"></div>
         )}
-        <div className="flex items-center px-10 font-medium font-azeretMono absolute h-[56px] -top-8 bg-textBackGround text-lightDarkText tracking-[1px]">
-          Tools
+        <div className="flex items-center px-10 font-medium text-[18px] font-azeretMono absolute h-[56px] -top-8 bg-textBackGround text-lightDarkText tracking-[1px] z-[20]">
+          Your Balance
         </div>
         <div className="muon actions-content mt-3 w-full px-4 py-8 min-h-[400px] md:min-h-[428px] md:max-h-[424px] overflow-hidden flex flex-col">
           <div className="mt-5 text-[12px] leading-5 text-base ">
@@ -34,7 +34,7 @@ const UserInfo = () => {
               <span className="border-b pb-5 w-full flex justify-center">
                 {" "}
                 <mark className="bg-textBackGround p-1">
-                  {userVestingInfo?.totalVestedAmount?.hStr ?? "..."}
+                  {userVestingInfo?.totalVestedAmount?.dsp ?? "..."}
                 </mark>
               </span>
             </div>
@@ -72,7 +72,7 @@ const UserInfo = () => {
             disabled={true}
             className="btn  btn--small   max-w-[250px] text-nowrap"
           >
-            {isMetamaskLoading ? "waiting for confirm..." : "waiting for Tx..."}
+            {isMetamaskLoading ? "Waiting for confirm..." : "Waiting for Tx..."}
           </button>
         ) : (
           <div>
