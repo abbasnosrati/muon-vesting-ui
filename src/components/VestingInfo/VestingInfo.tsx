@@ -18,7 +18,7 @@ const VestingInfo = () => {
               </div>
               <div className="border-b w-full flex justify-center items-center max-w-[150px] pb-4">
                 <mark className="bg-textBackGround p-1">
-                  {vestingInfo?.startDate ?? ""}
+                  {vestingInfo?.startDate ?? ".. ... ..."}
                 </mark>
               </div>
             </div>
@@ -29,7 +29,7 @@ const VestingInfo = () => {
               </div>
               <div className="border-b w-full flex justify-center max-w-[150px] py-5">
                 <mark className="bg-textBackGround p-1">
-                  {vestingInfo?.endDate ?? ""}
+                  {vestingInfo?.endDate ?? ".. ... ...."}
                 </mark>
               </div>
             </div>
@@ -38,7 +38,7 @@ const VestingInfo = () => {
               <div className="w-full max-w-[200px] ">Duration:</div>
               <div className=" w-full flex justify-center max-w-[150px] py-4">
                 <mark className="bg-textBackGround p-1">
-                  {vestingInfo?.duration ?? ""}
+                  {vestingInfo?.duration ?? ".. months"}
                 </mark>
               </div>
             </div>

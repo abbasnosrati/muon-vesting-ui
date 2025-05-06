@@ -220,7 +220,7 @@ const VestingProvider = ({ children }: { children: ReactNode }) => {
     isTransactionLoading,
   } = useWagmiContractWrite({
     abi: VestingAbi,
-    address: VESTING_ADDRESS as Address,
+    address: VESTING_ADDRESS[getCurrentChainId()] as Address,
     functionName: "release",
     chainId: getCurrentChainId(),
     showErrorToast: true,
@@ -230,7 +230,7 @@ const VestingProvider = ({ children }: { children: ReactNode }) => {
     try {
       const claimableAmount = await readContract(config, {
         abi: VestingAbi,
-        address: VESTING_ADDRESS as Address,
+        address: VESTING_ADDRESS[getCurrentChainId()] as Address,
         functionName: "releasable",
         args: [walletAddress as Address],
       });

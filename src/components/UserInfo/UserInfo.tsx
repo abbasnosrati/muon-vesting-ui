@@ -1,7 +1,7 @@
-import { useAccount } from "wagmi";
+import { useAccount, useSwitchChain } from "wagmi";
 import { useVestingContext } from "../../context/VestingContext";
-
 import { ConnectWalletModal } from "../common/ConnectWalletModal";
+import { getCurrentChainId } from "../../web3/chains";
 
 const UserInfo = () => {
   const {
@@ -11,7 +11,9 @@ const UserInfo = () => {
     isMetamaskLoading,
   } = useVestingContext();
 
-  const { address: walletAddress } = useAccount();
+  const { address: walletAddress, chainId, isConnected } = useAccount();
+
+  const { switchChain } = useSwitchChain();
 
   return (
     <div className="flex items-center relative justify-center w-full max-w-[430px]">
@@ -32,7 +34,7 @@ const UserInfo = () => {
               <span className="border-b pb-5 w-full flex justify-center">
                 {" "}
                 <mark className="bg-textBackGround p-1">
-                  {userVestingInfo?.totalVestedAmount?.hStr ?? 0}
+                  {userVestingInfo?.totalVestedAmount?.hStr ?? "..."}
                 </mark>
               </span>
             </div>
@@ -42,15 +44,15 @@ const UserInfo = () => {
               </span>
               <span className="border-b pb-5 w-full flex justify-center">
                 <mark className="bg-textBackGround p-1">
-                  {userVestingInfo?.releasableAmount?.dsp}
+                  {userVestingInfo?.releasableAmount?.dsp ?? "..."}
                 </mark>
               </span>
             </div>
             <div className="flex justify-between border-b py-5">
               <span className="w-full">Total Claimed:</span>
-              <span className="w-full justify-center flex">
+              <span className="w-full justify-center flex ml-6">
                 <mark className="bg-textBackGround p-1">
-                  {userVestingInfo?.releasedAmount?.dsp}
+                  {userVestingInfo?.releasedAmount?.dsp ?? "..."}
                 </mark>
               </span>
             </div>
@@ -58,7 +60,14 @@ const UserInfo = () => {
         </div>
       </div>
       <div className="w-full absolute bottom-10 flex justify-center ">
-        {isTransactionLoading || isMetamaskLoading ? (
+        {isConnected && getCurrentChainId() !== chainId ? (
+          <button
+            onClick={() => switchChain({ chainId: getCurrentChainId() })}
+            className="btn  btn--small  max-w-[250px] text-nowrap"
+          >
+            Switch Network
+          </button>
+        ) : isTransactionLoading || isMetamaskLoading ? (
           <button
             disabled={true}
             className="btn  btn--small   max-w-[250px] text-nowrap"
@@ -66,18 +75,20 @@ const UserInfo = () => {
             {isMetamaskLoading ? "waiting for confirm..." : "waiting for Tx..."}
           </button>
         ) : (
-          <button
-            disabled={
-              !userVestingInfo ||
-              !userVestingInfo.releasableAmount?.big ||
-              isTransactionLoading ||
-              isMetamaskLoading
-            }
-            className="btn  btn--small   max-w-[250px] text-nowrap"
-            onClick={() => handleClaim()}
-          >
-            Claim {userVestingInfo?.releasableAmount?.hStr ?? 0} $MUON Claim{" "}
-          </button>
+          <div>
+            <button
+              disabled={
+                !userVestingInfo ||
+                !userVestingInfo.releasableAmount?.big ||
+                isTransactionLoading ||
+                isMetamaskLoading
+              }
+              className="btn  btn--small   max-w-[250px] text-nowrap"
+              onClick={() => handleClaim()}
+            >
+              Claim {userVestingInfo?.releasableAmount?.dsp ?? 0} $MUON
+            </button>
+          </div>
         )}
       </div>
     </div>
