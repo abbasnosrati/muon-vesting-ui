@@ -27,30 +27,29 @@ const UserInfo = () => {
         </div>
         <div className="muon actions-content mt-3 w-full px-4 py-8 min-h-[400px] md:min-h-[428px] md:max-h-[424px] overflow-hidden flex flex-col">
           <div className="mt-5 text-[12px] leading-5 text-base ">
-            <div className="border-t py-5 flex justify-between gap-5">
-              <span className="border-b pb-5 w-full text-nowrap">
+            <div className="border-t items-center  flex justify-between gap-5">
+              <span className="border-b  w-full text-nowrap py-[26px]">
                 Total Vested $Muon:
-              </span>{" "}
-              <span className="border-b pb-5 w-full flex justify-center">
-                {" "}
+              </span>
+              <span className="border-b  w-full flex justify-center py-[22px]">
                 <mark className="bg-textBackGround p-1">
                   {userVestingInfo?.totalVestedAmount?.dsp ?? "..."}
                 </mark>
               </span>
             </div>
-            <div className="flex justify-between gap-5">
-              <span className="border-b pb-5 w-full text-nowrap">
+            <div className="flex justify-between items-center gap-5">
+              <span className="border-b w-full text-nowrap min-w-[198px] py-[26px]">
                 Claimable Amount:
               </span>
-              <span className="border-b pb-5 w-full flex justify-center">
+              <span className="border-b w-full flex justify-center py-[22px]">
                 <mark className="bg-textBackGround p-1">
                   {userVestingInfo?.releasableAmount?.dsp ?? "..."}
                 </mark>
               </span>
             </div>
-            <div className="flex justify-between border-b py-5">
+            <div className="flex justify-between items-center border-b py-[18px]">
               <span className="w-full">Total Claimed:</span>
-              <span className="w-full justify-center flex ml-6">
+              <span className="w-full justify-center flex ml-9">
                 <mark className="bg-textBackGround p-1">
                   {userVestingInfo?.releasedAmount?.dsp ?? "..."}
                 </mark>
