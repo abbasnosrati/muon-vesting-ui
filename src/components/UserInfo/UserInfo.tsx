@@ -2,6 +2,7 @@ import { useAccount, useSwitchChain } from "wagmi";
 import { useVestingContext } from "../../context/VestingContext";
 import { ConnectWalletModal } from "../common/ConnectWalletModal";
 import { getCurrentChainId } from "../../web3/chains";
+import { w3bNumberFromBigint } from "../../utils/web3";
 
 const UserInfo = () => {
   const {
@@ -47,11 +48,30 @@ const UserInfo = () => {
                 </mark>
               </span>
             </div>
-            <div className="flex justify-between items-center border-b py-[18px]">
-              <span className="w-full">Total Claimed:</span>
-              <span className="w-full justify-center flex ml-9">
+
+            <div className="flex justify-between items-center gap-5">
+              <span className="border-b w-full text-nowrap min-w-[198px] py-[26px]">
+                Total Claimed:
+              </span>
+              <span className="border-b w-full flex justify-center py-[22px]">
                 <mark className="bg-textBackGround p-1">
                   {userVestingInfo?.releasedAmount?.dsp ?? "..."}
+                </mark>
+              </span>
+            </div>
+
+            <div className="flex justify-between items-center border-b py-[18px]">
+              <span className="w-full">Remaining Amount:</span>
+              <span className="w-full justify-center flex ml-9">
+                <mark className="bg-textBackGround p-1">
+                  {userVestingInfo &&
+                  userVestingInfo.totalVestedAmount &&
+                  userVestingInfo.releasedAmount
+                    ? w3bNumberFromBigint(
+                        userVestingInfo.totalVestedAmount.big -
+                          userVestingInfo.releasedAmount.big
+                      ).dsp
+                    : "..."}
                 </mark>
               </span>
             </div>
